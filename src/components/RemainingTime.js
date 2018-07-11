@@ -13,22 +13,13 @@ class RemainingTime extends Component {
   render() {
     const { getBackTime } = this.props;
     const now = moment();
-    const diff = moment(getBackTime - now);
-    return diff.utcOffset("+00:00").format('mm:ss');
+    if(now < getBackTime) {
+      const diff = moment(getBackTime - now);
+      return diff.utcOffset("+00:00").format('mm:ss');
+    } else {
+      return '';
+    }
   }
 }
 
-class Clock extends Component {
-
-  render() {
-    const getBackTime = moment();
-    getBackTime.add(3, 'minute');
-    return (
-      <div>
-        <RemainingTime getBackTime={getBackTime} />
-      </div>
-    );
-  }
-}
-
-export default Clock;
+export default RemainingTime;

@@ -2,11 +2,12 @@ import React, {Component, Fragment} from 'react';
 import { connect } from 'react-redux';
 import {DashboardActions} from '../actions';
 import axios from 'axios/index';
+import moment from 'moment';
 // import {SAVE_WORDLIST} from '../actions/types';
 
 import { withStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
-import Clock from '../components/Clock';
+import RemainingTime from '../components/RemainingTime';
 
 const styles = theme => ({
   container: {
@@ -26,7 +27,7 @@ class Dashboard extends Component {
     markup: '',
     inputText: '',
     learnedInput: '',
-    racingStatus: false,
+    raceStartTime: '',
     wordsCnt: 0,
   };
 
@@ -45,13 +46,13 @@ class Dashboard extends Component {
   }
 
   startRace = () => {
-    this.setState((prev) => ({ racingStatus: !prev.racingStatus}))
+    this.setState((prev) => ({ raceStartTime: moment() }))
   };
 
   handleChange = (e) => {
     e.preventDefault();
-    const { racingStatus } = this.state;
-    if(!racingStatus) {
+    const { raceStartTime } = this.state;
+    if(!raceStartTime) {
       this.startRace();
     }
 
@@ -77,11 +78,20 @@ class Dashboard extends Component {
   };
 
   render () {
-    const { markup, inputText, racingStatus } = this.state;
+    const { markup, inputText, raceStartTime } = this.state;
     const { classes } = this.props;
+
+    let getBackTime = '';
+    if(raceStartTime) {
+      getBackTime = moment(raceStartTime);
+      getBackTime.add(3, 'seconds');
+    }
     return (
       <Fragment>
-        {racingStatus && <Clock/>}
+        {getBackTime &&
+        <div>
+          <RemainingTime getBackTime={getBackTime} />
+        </div>}
         <div id="inputPara" dangerouslySetInnerHTML={{ __html: markup }} ref={node => { this.paraNode = node; }} />
         <form>
           <TextField
