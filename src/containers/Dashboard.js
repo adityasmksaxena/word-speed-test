@@ -80,8 +80,8 @@ class Dashboard extends Component {
     );
   };
 
-  finishGame = () => {
-    this.setState(() => ({ raceStartTime: '', resultDialog: true }));
+  finishRace = () => {
+    this.setState(() => ({ raceStartTime: '', resultDialog: true, learnedInput: '', inputText: ''}));
   };
 
   showResultDialog = () => {
@@ -110,7 +110,7 @@ class Dashboard extends Component {
         <div>
           <RemainingTime
             getBackTime={getBackTime}
-            finishGame={this.finishGame}
+            finishRace={this.finishRace}
           />
         </div>}
         <div id="inputPara" dangerouslySetInnerHTML={{ __html: markup }} ref={node => { this.paraNode = node; }} />

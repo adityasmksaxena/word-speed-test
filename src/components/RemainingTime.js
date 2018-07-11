@@ -6,12 +6,12 @@ class RemainingTime extends Component {
     now: moment(),
   };
   componentDidMount() {
-    const { getBackTime, finishGame } = this.props;
+    const { getBackTime, finishRace } = this.props;
     this.interval = setInterval(() => {
       let now = moment();
       if(now > getBackTime) {
         clearInterval(this.interval);
-        finishGame();
+        finishRace();
       } else {
         this.setState(() => ({ now: moment() }))
       }
