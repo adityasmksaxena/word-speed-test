@@ -84,7 +84,7 @@ class Dashboard extends Component {
     let getBackTime = '';
     if(raceStartTime) {
       getBackTime = moment(raceStartTime);
-      getBackTime.add(3, 'seconds');
+      getBackTime.add(3, 'minutes');
     }
     return (
       <Fragment>
