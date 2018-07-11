@@ -22,7 +22,7 @@ class Clock extends Component {
 
   render() {
     const getBackTime = moment();
-    getBackTime.add(1, 'minute');
+    getBackTime.add(3, 'minute');
     return (
       <div>
         <RemainingTime getBackTime={getBackTime} />

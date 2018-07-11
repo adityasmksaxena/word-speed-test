@@ -26,6 +26,8 @@ class Dashboard extends Component {
     markup: '',
     inputText: '',
     learnedInput: '',
+    racingStatus: false,
+    wordsCnt: 0,
   };
 
   getList = async () => {
@@ -42,8 +44,17 @@ class Dashboard extends Component {
     this.getList();
   }
 
+  startRace = () => {
+    this.setState((prev) => ({ racingStatus: !prev.racingStatus}))
+  };
+
   handleChange = (e) => {
     e.preventDefault();
+    const { racingStatus } = this.state;
+    if(!racingStatus) {
+      this.startRace();
+    }
+
     const { name, value } = e.target;
     this.setState(() => ({ [name]: value }),
       () => {
@@ -53,7 +64,11 @@ class Dashboard extends Component {
           if(key === ' ') {
             let p1 = this.paraNode.firstChild.innerText;
             if(p1.indexOf(learnedInput + inputText) === 0) {
-              this.setState((prev) => ({ inputText: '', learnedInput: learnedInput + this.state.inputText }))
+              this.setState((prev) => ({
+                inputText: '',
+                learnedInput: learnedInput + this.state.inputText,
+                wordsCnt: prev.wordsCnt + 1,
+              }))
             }
           }
         }
@@ -62,11 +77,11 @@ class Dashboard extends Component {
   };
 
   render () {
-    const { markup, inputText } = this.state;
+    const { markup, inputText, racingStatus } = this.state;
     const { classes } = this.props;
     return (
       <Fragment>
-        <Clock/>
+        {racingStatus && <Clock/>}
         <div id="inputPara" dangerouslySetInnerHTML={{ __html: markup }} ref={node => { this.paraNode = node; }} />
         <form>
           <TextField
@@ -81,8 +96,9 @@ class Dashboard extends Component {
             fullWidth
           />
         </form>
-        <div>Correct Text : {this.state.learnedInput}</div>
         <div>Current Text : {this.state.inputText}</div>
+        <div>Learned Text : {this.state.learnedInput}</div>
+        <div>Correct Words Text : {this.state.wordsCnt}</div>
       </Fragment>
     );
   }
