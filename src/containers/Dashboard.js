@@ -3,10 +3,12 @@ import { connect } from 'react-redux';
 import {DashboardActions} from '../actions';
 import axios from 'axios/index';
 import moment from 'moment';
-// import {SAVE_WORDLIST} from '../actions/types';
-
 import { withStyles } from '@material-ui/core/styles';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Dialog from '@material-ui/core/Dialog';
 import TextField from '@material-ui/core/TextField';
+
+// import {SAVE_WORDLIST} from '../actions/types';
 import RemainingTime from '../components/RemainingTime';
 
 const styles = theme => ({
@@ -27,8 +29,9 @@ class Dashboard extends Component {
     markup: '',
     inputText: '',
     learnedInput: '',
-    raceStartTime: '',
     wordsCnt: 0,
+    raceStartTime: '',
+    raceTimeMinutes: 2,
   };
 
   getList = async () => {
@@ -78,17 +81,28 @@ class Dashboard extends Component {
   };
 
   finishGame = () => {
-    this.setState(() => ({ raceStartTime: '' }));
+    this.setState(() => ({ raceStartTime: '', resultDialog: true }));
+  };
+
+  showResultDialog = () => {
+    return (
+      <Dialog onClose={this.handleClose} open={true}>
+        <DialogTitle id="simple-dialog-title">Final Results</DialogTitle>
+        <div>
+          `Word Speed Per Minute : ${this.state.wordsCnt / this.state.raceTimeMinutes}`
+        </div>
+      </Dialog>
+    )
   };
 
   render () {
-    const { markup, inputText, raceStartTime } = this.state;
+    const { markup, inputText, raceStartTime, raceTimeMinutes } = this.state;
     const { classes } = this.props;
 
     let getBackTime = '';
     if(raceStartTime) {
       getBackTime = moment(raceStartTime);
-      getBackTime.add(1.5, 'minutes');
+      getBackTime.add(raceTimeMinutes, 'minutes');
     }
     return (
       <Fragment>
@@ -116,6 +130,7 @@ class Dashboard extends Component {
         <div>Current Text : {this.state.inputText}</div>
         <div>Learned Text : {this.state.learnedInput}</div>
         <div>Correct Words Count : {this.state.wordsCnt}</div>
+        {this.state.resultDialog && this.showResultDialog()}
       </Fragment>
     );
   }
