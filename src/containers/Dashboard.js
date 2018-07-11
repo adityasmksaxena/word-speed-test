@@ -77,6 +77,10 @@ class Dashboard extends Component {
     );
   };
 
+  finishGame = () => {
+    this.setState(() => ({ raceStartTime: '' }));
+  };
+
   render () {
     const { markup, inputText, raceStartTime } = this.state;
     const { classes } = this.props;
@@ -84,13 +88,16 @@ class Dashboard extends Component {
     let getBackTime = '';
     if(raceStartTime) {
       getBackTime = moment(raceStartTime);
-      getBackTime.add(3, 'minutes');
+      getBackTime.add(1.5, 'minutes');
     }
     return (
       <Fragment>
         {getBackTime &&
         <div>
-          <RemainingTime getBackTime={getBackTime} />
+          <RemainingTime
+            getBackTime={getBackTime}
+            finishGame={this.finishGame}
+          />
         </div>}
         <div id="inputPara" dangerouslySetInnerHTML={{ __html: markup }} ref={node => { this.paraNode = node; }} />
         <form>
@@ -108,7 +115,7 @@ class Dashboard extends Component {
         </form>
         <div>Current Text : {this.state.inputText}</div>
         <div>Learned Text : {this.state.learnedInput}</div>
-        <div>Correct Words Text : {this.state.wordsCnt}</div>
+        <div>Correct Words Count : {this.state.wordsCnt}</div>
       </Fragment>
     );
   }

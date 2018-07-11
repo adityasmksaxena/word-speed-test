@@ -1,24 +1,30 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import moment from 'moment';
 
 class RemainingTime extends Component {
+  state={
+    now: moment(),
+  };
   componentDidMount() {
+    const { getBackTime, finishGame } = this.props;
     this.interval = setInterval(() => {
-      this.forceUpdate();
+      let now = moment();
+      if(now > getBackTime) {
+        clearInterval(this.interval);
+        finishGame();
+      } else {
+        this.setState(() => ({ now: moment() }))
+      }
     }, 1000);
   }
   componentWillUnmount() {
     clearInterval(this.interval);
   }
   render() {
+    const { now } = this.state;
     const { getBackTime } = this.props;
-    const now = moment();
-    if(now < getBackTime) {
-      const diff = moment(getBackTime - now);
-      return diff.utcOffset("+00:00").format('mm:ss');
-    } else {
-      return '';
-    }
+    const diff = moment(getBackTime - now);
+    return diff.utcOffset("+00:00").format('mm:ss');
   }
 }
 
