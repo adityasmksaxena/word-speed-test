@@ -6,6 +6,7 @@ import axios from 'axios/index';
 
 import { withStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
+import Clock from '../components/Clock';
 
 const styles = theme => ({
   container: {
@@ -15,7 +16,7 @@ const styles = theme => ({
   textField: {
     marginLeft: theme.spacing.unit,
     marginRight: theme.spacing.unit,
-    width: 200,
+    width: '100%',
   },
 });
 
@@ -65,6 +66,7 @@ class Dashboard extends Component {
     const { classes } = this.props;
     return (
       <Fragment>
+        <Clock/>
         <div id="inputPara" dangerouslySetInnerHTML={{ __html: markup }} ref={node => { this.paraNode = node; }} />
         <form>
           <TextField
