@@ -18,6 +18,10 @@ const wordRacerReducer = (state = INITIAL_STATE, action) => {
       return { ...state, raceStartTime: Date.now() }
     }
     case CHANGE_FOCUS: {
+      const inFocus = state.inFocus + 1;
+      if (inFocus >= state.paraList.length) {
+        return {...state};
+      }
       return { ...state, inFocus: state.inFocus + 1 };
     }
     case UPDATE_LEARNED_INPUT: {
