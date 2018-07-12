@@ -39,7 +39,7 @@ class Dashboard extends Component {
 
   getList = async () => {
     try {
-      const url = 'http://www.randomtext.me/api';
+      const url = 'https://www.randomtext.me/api';
       const response = await axios.get(url);
       const dummyElement = document.createElement('div');
       dummyElement.innerHTML = response.data.text_out;
