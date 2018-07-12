@@ -4,14 +4,21 @@ import {DashboardActions} from '../actions';
 import axios from 'axios/index';
 import moment from 'moment';
 import { withStyles } from '@material-ui/core/styles';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Dialog from '@material-ui/core/Dialog';
+import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
 
-// import {SAVE_WORDLIST} from '../actions/types';
 import RemainingTime from '../components/RemainingTime';
 
 const styles = theme => ({
+  root: {
+    ...theme.mixins.gutters(),
+    paddingTop: theme.spacing.unit * 2,
+    paddingBottom: theme.spacing.unit * 2,
+  },
   container: {
     display: 'flex',
     flexWrap: 'wrap',
@@ -26,20 +33,20 @@ const styles = theme => ({
 class Dashboard extends Component {
 
   state = {
-    markup: '',
     inputText: '',
-    learnedInput: '',
-    wordsCnt: 0,
-    raceStartTime: '',
-    raceTimeMinutes: 2,
+    raceTimeMinutes: 3,
   };
 
   getList = async () => {
     try {
       const url = 'http://www.randomtext.me/api';
       const response = await axios.get(url);
-      let markup = response.data.text_out;
-      this.setState(() => ({ markup }));
+      const dummyElement = document.createElement('div');
+      dummyElement.innerHTML = response.data.text_out;
+      const childPtags = dummyElement.getElementsByTagName('p');
+      const childTagsArr = Array.from(childPtags).map((item) => item.innerText.trim());
+      const { savePara } = this.props;
+      savePara(childTagsArr);
     } catch (err) {
     }
   };
@@ -48,56 +55,59 @@ class Dashboard extends Component {
     this.getList();
   }
 
-  startRace = () => {
-    this.setState((prev) => ({ raceStartTime: moment() }))
-  };
-
   handleChange = (e) => {
     e.preventDefault();
-    const { raceStartTime } = this.state;
+    const { raceStartTime, startRace } = this.props;
     if(!raceStartTime) {
-      this.startRace();
+      startRace();
     }
-
     const { name, value } = e.target;
-    this.setState(() => ({ [name]: value }),
-      () => {
-        const { inputText, learnedInput } = this.state;
-        if(value.length !== 0) {
-          const key = value.substring(value.length -1);
-          if(key === ' ') {
-            let p1 = this.paraNode.firstChild.innerText;
-            if(p1.indexOf(learnedInput + inputText) === 0) {
-              this.setState((prev) => ({
-                inputText: '',
-                learnedInput: learnedInput + this.state.inputText,
-                wordsCnt: prev.wordsCnt + 1,
-              }))
-            }
-          }
-        }
+    const key = value.substring(value.length -1);
+    if(key === ' ') {
+      const { paraList, learnedInput, inFocus, updateLearnedInput } = this.props;
+      const newVal = learnedInput[inFocus] + value;
+      if (paraList[inFocus].indexOf(newVal) === 0) {
+        updateLearnedInput(inFocus, newVal);
+        this.setState(() => ({ inputText: '' }));
+        return;
       }
-    );
+    } else if(key === '\n') {
+      const { paraList, learnedInput, inFocus, updateLearnedInput, changeFocus } = this.props;
+      const newVal = learnedInput[inFocus] + value.substring(0, value.length - 1);
+      if (paraList[inFocus] === newVal) {
+        updateLearnedInput(inFocus, newVal);
+        changeFocus();
+        this.setState(() => ({ inputText: '' }));
+        return;
+      }
+    }
+    this.setState(() => ({ [name]: value }));
   };
 
   finishRace = () => {
-    this.setState(() => ({ raceStartTime: '', resultDialog: true, learnedInput: '', inputText: ''}));
+    this.setState(() => ({ resultDialog: true, inputText: ''}));
   };
 
   showResultDialog = () => {
     return (
       <Dialog onClose={this.handleClose} open={true}>
-        <DialogTitle id="simple-dialog-title">Final Results</DialogTitle>
-        <div>
-          `Word Speed Per Minute : ${this.state.wordsCnt / this.state.raceTimeMinutes}`
-        </div>
+        <DialogTitle id="simple-dialog-title">Result</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            {`Word Speed Per Minute : ${this.props.wordCnt / this.state.raceTimeMinutes}`}
+          </DialogContentText>
+        </DialogContent>
       </Dialog>
     )
   };
 
   render () {
-    const { markup, inputText, raceStartTime, raceTimeMinutes } = this.state;
-    const { classes } = this.props;
+    const { inputText, raceTimeMinutes } = this.state;
+    const { paraList, learnedInput, wordCnt, raceStartTime, classes } = this.props;
+
+    if (!paraList || paraList.length === 0) {
+      return 'Loading';
+    }
 
     let getBackTime = '';
     if(raceStartTime) {
@@ -105,20 +115,34 @@ class Dashboard extends Component {
       getBackTime.add(raceTimeMinutes, 'minutes');
     }
     return (
-      <Fragment>
-        {getBackTime &&
+      <Paper className={classes.root} elevation={1}>
+        {getBackTime ?
         <div>
           <RemainingTime
             getBackTime={getBackTime}
             finishRace={this.finishRace}
           />
-        </div>}
-        <div id="inputPara" dangerouslySetInnerHTML={{ __html: markup }} ref={node => { this.paraNode = node; }} />
+        </div> : <div>03:00</div>}
+        <div>Correct Words Count : {wordCnt}</div>
+
+        {paraList.map((item, idx) => (
+          <p key={idx}>
+            <span
+              style={{ color: 'green', fontWeight: 600 }}
+            >
+              {learnedInput[idx]}
+            </span>
+            {item.substring(learnedInput[idx].length)}
+          </p>
+        ))}
+
         <form>
           <TextField
             id="input_text"
             name="inputText"
             label="Input Text"
+            multiline
+            rowsMax="4"
             className={classes.textField}
             value={inputText}
             onChange={this.handleChange}
@@ -127,17 +151,21 @@ class Dashboard extends Component {
             fullWidth
           />
         </form>
-        <div>Current Text : {this.state.inputText}</div>
-        <div>Learned Text : {this.state.learnedInput}</div>
-        <div>Correct Words Count : {this.state.wordsCnt}</div>
+
         {this.state.resultDialog && this.showResultDialog()}
-      </Fragment>
+      </Paper>
     );
   }
+}
+
+const mapStateToProps = state => {
+  const { paraList, learnedInput, inFocus, wordCnt, raceStartTime,  } = state.wordRacer;
+  return {
+    paraList,
+    learnedInput,
+    inFocus,
+    wordCnt,
+    raceStartTime,
+  }
 };
-
-const mapStateToProps = state => ({
-  wordList: state.wordRacer.wordList,
-});
-
 export default connect(mapStateToProps, DashboardActions)(withStyles(styles)(Dashboard));

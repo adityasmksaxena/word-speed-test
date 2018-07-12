@@ -4,19 +4,12 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import { Provider } from 'react-redux';
 import reduxThunk from 'redux-thunk';
 
-import moment from 'moment';
-
 import registerServiceWorker from './registerServiceWorker';
 import './styles/index.css';
 import Router from './Router';
 import reducers from './reducers';
 
-const INITIAL_STATE = {
-  wordRacer: {
-    startTime: moment(),
-    wordList: []
-  },
-};
+const INITIAL_STATE = {};
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(
   reducers,
