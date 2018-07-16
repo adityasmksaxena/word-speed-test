@@ -3,10 +3,12 @@ import ReactDOM from 'react-dom';
 import { createStore, applyMiddleware, compose } from 'redux';
 import { Provider } from 'react-redux';
 import reduxThunk from 'redux-thunk';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
+
+import Dashboard from './containers/Dashboard';
 
 import registerServiceWorker from './registerServiceWorker';
 import './styles/index.css';
-import Router from './Router';
 import reducers from './reducers';
 
 const INITIAL_STATE = {};
@@ -19,7 +21,11 @@ const store = createStore(
 
 ReactDOM.render(
   <Provider store={store}>
-    <Router />
+    <BrowserRouter>
+      <Switch>
+        <Route exact path="/" component={Dashboard} />
+      </Switch>
+    </BrowserRouter>
   </Provider>
   , document.getElementById('root'),
 );

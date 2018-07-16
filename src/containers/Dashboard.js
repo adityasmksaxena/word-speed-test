@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
-import {DashboardActions} from '../actions';
+import {DashboardActions} from '../actions/index';
 import axios from 'axios/index';
 import moment from 'moment';
+import withRoot from '../components/withRoot';
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
@@ -168,4 +169,4 @@ const mapStateToProps = state => {
     raceStartTime,
   }
 };
-export default connect(mapStateToProps, DashboardActions)(withStyles(styles)(Dashboard));
+export default connect(mapStateToProps, DashboardActions)(withRoot(withStyles(styles)(Dashboard)));
